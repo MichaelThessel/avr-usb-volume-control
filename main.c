@@ -5,7 +5,6 @@
 #include <avr/pgmspace.h>
 
 #include "usbdrv/usbdrv.h"
-#include "keycodes.h"
 
 #define STATUS_IDLE 0
 #define STATUS_UP 1
