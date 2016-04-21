@@ -178,23 +178,23 @@ $EndComp
 $Comp
 L R Rc102
 U 1 1 57173A44
-P 6000 3400
-F 0 "Rc102" V 6080 3400 50  0000 C CNN
-F 1 "2k" V 6000 3400 50  0000 C CNN
-F 2 "Resistors_SMD:R_0805_HandSoldering" V 5930 3400 50  0001 C CNN
-F 3 "" H 6000 3400 50  0000 C CNN
-	1    6000 3400
+P 6050 3450
+F 0 "Rc102" V 6130 3450 50  0000 C CNN
+F 1 "2k" V 6050 3450 50  0000 C CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 5980 3450 50  0001 C CNN
+F 3 "" H 6050 3450 50  0000 C CNN
+	1    6050 3450
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_01X05 Pc101
+L CONN_01X04 Pc101
 U 1 1 57174189
-P 8050 3300
-F 0 "Pc101" H 8050 3600 50  0000 C CNN
-F 1 "USB" V 8150 3300 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 8050 3300 50  0001 C CNN
-F 3 "" H 8050 3300 50  0000 C CNN
-	1    8050 3300
+P 8050 3250
+F 0 "Pc101" H 8050 3550 50  0000 C CNN
+F 1 "USB" V 8150 3250 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x04" H 8050 3250 50  0001 C CNN
+F 3 "" H 8050 3250 50  0000 C CNN
+	1    8050 3250
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -242,14 +242,14 @@ F 3 "" H 7000 4200 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_01X05 P201
+L CONN_01X04 P201
 U 1 1 571766A5
-P 9050 4600
-F 0 "P201" H 9050 4900 50  0000 C CNN
-F 1 "ROT ENC" V 9150 4600 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 9050 4600 50  0001 C CNN
-F 3 "" H 9050 4600 50  0000 C CNN
-	1    9050 4600
+P 9050 4550
+F 0 "P201" H 9050 4850 50  0000 C CNN
+F 1 "ROT ENC" V 9150 4550 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x04" H 9050 4550 50  0001 C CNN
+F 3 "" H 9050 4550 50  0000 C CNN
+	1    9050 4550
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -296,6 +296,17 @@ F 3 "" H 8350 4800 50  0000 C CNN
 	1    8350 4800
 	1    0    0    -1  
 $EndComp
+$Comp
+L R Rc303
+U 1 1 57185BFE
+P 6100 3250
+F 0 "Rc303" V 6180 3250 50  0000 C CNN
+F 1 "2k" V 6100 3250 50  0000 C CNN
+F 2 "Resistors_SMD:R_0805_HandSoldering" V 6030 3250 50  0001 C CNN
+F 3 "" H 6100 3250 50  0000 C CNN
+	1    6100 3250
+	0    1    1    0   
+$EndComp
 Wire Wire Line
 	3450 1500 3450 1600
 Wire Wire Line
@@ -328,7 +339,7 @@ Wire Wire Line
 Wire Wire Line
 	5800 2050 6900 2050
 Wire Wire Line
-	5800 3400 5850 3400
+	5800 3400 5900 3400
 Wire Wire Line
 	5800 3750 6250 3750
 Wire Wire Line
@@ -367,9 +378,9 @@ Connection ~ 6250 3750
 Connection ~ 7000 3900
 Connection ~ 6350 2050
 Wire Wire Line
-	6150 3400 6450 3400
+	6450 3400 6200 3400
 Wire Wire Line
-	6450 3400 6450 3100
+	6450 3100 6450 3400
 Wire Wire Line
 	6450 3100 7850 3100
 Wire Wire Line
@@ -392,9 +403,7 @@ Wire Wire Line
 Connection ~ 7250 4000
 Connection ~ 7800 3100
 Wire Wire Line
-	7850 3500 7800 3500
-Wire Wire Line
-	7800 3500 7800 5050
+	7800 3400 7800 5050
 Wire Wire Line
 	8350 4300 8350 4650
 Connection ~ 8350 4500
@@ -420,4 +429,24 @@ Wire Wire Line
 Wire Wire Line
 	8650 4600 8650 5050
 Connection ~ 8350 5050
+Wire Wire Line
+	7800 3400 7850 3400
+Wire Wire Line
+	5900 3400 5900 3450
+Wire Wire Line
+	6200 3400 6200 3450
+Wire Wire Line
+	5800 3300 5950 3300
+Wire Wire Line
+	5950 3300 5950 3250
+Wire Wire Line
+	6250 3250 6450 3250
+Connection ~ 6450 3250
+Wire Wire Line
+	5850 3300 5850 5150
+Wire Wire Line
+	5850 5150 8850 5150
+Wire Wire Line
+	8850 5150 8850 4700
+Connection ~ 5850 3300
 $EndSCHEMATC
