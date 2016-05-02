@@ -10,7 +10,8 @@
 #define STATUS_UP 1
 #define STATUS_DOWN 2
 #define STATUS_MUTE 3
-#define STATUS_STOP 4
+#define STATUS_PLAY_PAUSE 4
+#define STATUS_STOP 5
 volatile int status = 0;
 
 static uint8_t reportBuffer[3];
@@ -18,7 +19,7 @@ static uchar idleRate;
 
 #define REPID_MMKEY 3
 
-volatile int debounceDelay = 0;
+volatile int buttonDebounce = 0;
 
 const PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
     0x05, 0x0C, // USAGE_PAGE (Consumer Devices)
@@ -64,12 +65,14 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
 
 int main(void)
 {
-    DDRC |= (1 << DDC3) | (1 << DDC5);
+
     PORTC &= !((1 << PORTC3) | (1 << PORTC5));
 
     DDRD &= ~(1 << DDD0) | ~(1 << DDD1); // PD0 & PD1 input
-    PCICR |= (1 << PCIE2); // Enable pin change interrupts for PCINT[23:16]
+    DDRC &= !(1 << DDC5); // PC5 input
+    PCICR |= (1 << PCIE2) | (1 << PCIE1); // Enable pin change interrupts for PCINT[23:16] && [14:8]
     PCMSK2 |= (1 << PCINT16); // Enable pin change interrupt for PCINT16
+    PCMSK1 |= (1 << PCINT13); // Enable pin change interrupt for PCINT13
     EICRA |= (1 << ISC11); // Trigger pin change interrupt on falling edge
 
     wdt_enable(WDTO_1S);
@@ -110,34 +113,58 @@ int main(void)
                     status = STATUS_STOP;
                     break;
 
+                case STATUS_PLAY_PAUSE:
+                    buildReport(0xCD, REPID_MMKEY);
+                    status = STATUS_STOP;
+                    break;
+
                 case STATUS_STOP:
                     buildReport(0, 0);
                     status = STATUS_IDLE;
                     break;
             }
 
+            sei();
+
             usbSetInterrupt((void *)&reportBuffer, sizeof(reportBuffer));
         }
 
-        // Button debounce
-        if (debounceDelay) {
-            debounceDelay--;
+        if (buttonDebounce)
+        {
+            buttonDebounce--;
         }
     }
+
 
     return 0;
 }
 
+// Handle rotary encoder spin
 ISR(PCINT2_vect)
 {
-    if (debounceDelay) return;
+    // Falling edge on PIND0
+    if (!(PIND & (1 << PIND1))) {
 
-    if (!(PIND & (1 << PIND0))) {
-        if (PIND & (1 << PIND1)) {
-            status = STATUS_UP;
-        } else {
+        cli();
+
+        if (PIND & (1 << PIND0)) {
+            // PIND1 high -> right turn
             status = STATUS_DOWN;
+        } else {
+            // PIND1 high -> left turn
+            status = STATUS_UP;
         }
-        debounceDelay = 1000;
+    }
+}
+
+// Handle rotary encoder button push
+ISR(PCINT1_vect)
+{
+    if (buttonDebounce) return;
+
+    cli();
+    if (PINC & (1 << PIND5)) {
+        status = STATUS_PLAY_PAUSE;
+        buttonDebounce = 1000;
     }
 }
