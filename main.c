@@ -19,8 +19,7 @@ volatile int status = 0;
 static uint8_t reportBuffer[3];
 static uchar idleRate;
 
-volatile int debounceButton = 0;
-const int debounceDelay = 1000;
+volatile short debounceActive = 0;
 
 const PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
     0x05, 0x0C, // USAGE_PAGE (Consumer Devices)
@@ -124,27 +123,29 @@ int main(void)
 
             usbSetInterrupt((void *)&reportBuffer, sizeof(reportBuffer));
         }
-
-        if (debounceButton)
-        {
-            debounceButton--;
-        }
     }
 
 
     return 0;
 }
 
+// Enable debounce
+void debounce()
+{
+    debounceActive = 1;
+    TCCR0B |= (1 << CS00) | (1 << CS01); // prescaler 1024 TIMSK0 |= (1 << OCIE0A); // Enable timer compare match interrupt
+}
+
 // Handle rotary encoder spin
 ISR(PCINT2_vect)
 {
-    if (debounceButton) return;
-    
+    if (debounceActive) return;
+
     // Falling edge on PIND0
     if (!(PIND & (1 << PIND1))) {
 
         cli();
-        debounceButton = debounceDelay;
+        debounce();
 
         if (PIND & (1 << PIND0)) {
             // PIND1 high -> right turn
@@ -159,11 +160,18 @@ ISR(PCINT2_vect)
 // Handle rotary encoder button push
 ISR(PCINT1_vect)
 {
-    if (debounceButton) return;
+    if (debounceActive) return;
 
     cli();
     if (PINC & (1 << PIND5)) {
         status = STATUS_MUTE;
-        debounceButton = debounceDelay;
+        debounce();
     }
+}
+
+// Disable debounce
+ISR(TIMER0_COMPA_vect)
+{
+    debounceActive = 0;
+    TIMSK0 &= ~(1 << OCIE0A);
 }
