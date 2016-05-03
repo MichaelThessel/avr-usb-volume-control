@@ -7,19 +7,20 @@
 #include "usbdrv/usbdrv.h"
 
 #define STATUS_IDLE 0
-#define STATUS_UP 1
-#define STATUS_DOWN 2
-#define STATUS_MUTE 3
-#define STATUS_PLAY_PAUSE 4
-#define STATUS_STOP 5
+#define STATUS_STOP 1
+#define STATUS_UP 2
+#define STATUS_DOWN 3
+#define STATUS_MUTE 4
+
+#define REPID_MMKEY 3
+
 volatile int status = 0;
 
 static uint8_t reportBuffer[3];
 static uchar idleRate;
 
-#define REPID_MMKEY 3
-
-volatile int buttonDebounce = 0;
+volatile int debounceButton = 0;
+const int debounceDelay = 1000;
 
 const PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
     0x05, 0x0C, // USAGE_PAGE (Consumer Devices)
@@ -113,11 +114,6 @@ int main(void)
                     status = STATUS_STOP;
                     break;
 
-                case STATUS_PLAY_PAUSE:
-                    buildReport(0xCD, REPID_MMKEY);
-                    status = STATUS_STOP;
-                    break;
-
                 case STATUS_STOP:
                     buildReport(0, 0);
                     status = STATUS_IDLE;
@@ -129,9 +125,9 @@ int main(void)
             usbSetInterrupt((void *)&reportBuffer, sizeof(reportBuffer));
         }
 
-        if (buttonDebounce)
+        if (debounceButton)
         {
-            buttonDebounce--;
+            debounceButton--;
         }
     }
 
@@ -142,10 +138,13 @@ int main(void)
 // Handle rotary encoder spin
 ISR(PCINT2_vect)
 {
+    if (debounceButton) return;
+    
     // Falling edge on PIND0
     if (!(PIND & (1 << PIND1))) {
 
         cli();
+        debounceButton = debounceDelay;
 
         if (PIND & (1 << PIND0)) {
             // PIND1 high -> right turn
@@ -160,11 +159,11 @@ ISR(PCINT2_vect)
 // Handle rotary encoder button push
 ISR(PCINT1_vect)
 {
-    if (buttonDebounce) return;
+    if (debounceButton) return;
 
     cli();
     if (PINC & (1 << PIND5)) {
-        status = STATUS_PLAY_PAUSE;
-        buttonDebounce = 1000;
+        status = STATUS_MUTE;
+        debounceButton = debounceDelay;
     }
 }
